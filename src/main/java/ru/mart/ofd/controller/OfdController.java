@@ -24,7 +24,7 @@ import ru.mart.ofd.exeptions.NotFoundException;
 
 
 @RestController
-@RequestMapping("ofd")
+@RequestMapping("kkt")
 public class OfdController {
 	private int count = 4;
 	private Map<String, String> map1 = Stream.of("zn","model").collect(Collectors.toMap(Function.identity(),i -> i.contains("zn")? "1" : "one"));
