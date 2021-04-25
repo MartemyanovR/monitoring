@@ -3,7 +3,7 @@ package ru.mart.ofd.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Fn")
+@Table(name = "fn")
 public class Fn {
 
     @Id

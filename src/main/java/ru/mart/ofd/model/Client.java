@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -15,19 +16,20 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
-    @Column
+    @Column(name = "login")
     private String login;
-    @Column
+    @Column(name = "dataUTC")
     private Instant dataUtc;
-    @Column
+    @Column(name = "authToken")
     private String authToken;
-    @Column
+    @Column(name = "passwrd")
     private  String password;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Organizaton> organizatons;
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Set<Organization> organizations = new HashSet<>();
 
     @Override
     public String toString() {
