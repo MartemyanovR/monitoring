@@ -20,9 +20,9 @@ public class Client {
 
     @Column(name = "login")
     private String login;
-    @Column(name = "dataUTC")
+    @Column(name = "data_utc")
     private Instant dataUtc;
-    @Column(name = "authToken")
+    @Column(name = "auth_token")
     private String authToken;
     @Column(name = "passwrd")
     private  String password;
