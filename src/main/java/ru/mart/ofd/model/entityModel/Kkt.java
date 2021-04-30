@@ -1,4 +1,7 @@
-package ru.mart.ofd.model;
+package ru.mart.ofd.model.entityModel;
+
+import ru.mart.ofd.model.entityModel.Fn;
+import ru.mart.ofd.model.entityModel.Organization;
 
 import javax.persistence.*;
 import java.time.Instant;

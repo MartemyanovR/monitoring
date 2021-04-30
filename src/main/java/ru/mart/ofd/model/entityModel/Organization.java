@@ -1,4 +1,4 @@
-package ru.mart.ofd.model;
+package ru.mart.ofd.model.entityModel;
 
 import javax.persistence.*;
 import java.util.HashSet;
