@@ -17,6 +17,6 @@ public class AuthDtoForRequest {
 
     @Override
     public String toString() {
-        return String.format("Token: %s ; Data: %s", login, password);
+        return String.format("login: %s ; password: %s", login, password);
     }
 }
