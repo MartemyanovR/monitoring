@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 
-class AuthDtoForRequestTest {
-    private AuthDtoForRequest authDto;
+class AuthDtoRequestTest {
+    private AuthDtoRequest authDto;
     private ObjectMapper objectMapper;
     private String login;
     private String password;
@@ -19,7 +19,7 @@ class AuthDtoForRequestTest {
     void setUp() {
         login = "cto@retailservice24.ru";
         password = "~2-=@oa4";
-        authDto = new AuthDtoForRequest(login, password );
+        authDto = new AuthDtoRequest(login, password );
         objectMapper = new ObjectMapper();
     }
 

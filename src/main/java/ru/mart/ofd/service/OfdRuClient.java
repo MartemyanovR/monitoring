@@ -5,22 +5,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ru.mart.ofd.model.ofdRuModel.AuthDtoForRequest;
-import ru.mart.ofd.model.ofdRuModel.AuthDtoForResponse;
-import ru.mart.ofd.repository.ClientRepository;
+import ru.mart.ofd.model.ofdRuModel.AuthDtoRequest;
+import ru.mart.ofd.model.ofdRuModel.AuthDtoResponse;
 
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 
@@ -33,38 +29,39 @@ public class OfdRuClient {
 
     private ClientServiceImpl clientService;
     private ObjectMapper objectMapper;
-    private AuthDtoForResponse authDtoResponse;
-    private List<AuthDtoForResponse> authDtoForResponseList;
+    private AuthDtoResponse authDtoResponse;
+    private List<AuthDtoResponse> authDtoResponseList;
     private final String url = "https://ofd.ru/api/Authorization/CreateAuthToken";
 
     {
         clientService = new ClientServiceImpl();
         objectMapper = new ObjectMapper();
-        authDtoForResponseList = new ArrayList<>();
+        authDtoResponseList = new ArrayList<>();
 
     }
 
     /**
-     * Получение коллекции Set<AuthDtoForRequest> с
+     * Получение коллекции List<AuthDtoForRequest> с
      * авторизационными данными из БД, для запроса токена
      * на веб-сервисе ofd.ru .
      * @return List<AuthDtoForResponse> который содержит ответы
-     * в виде токенов и  их сроков действия
+     * в виде токенов и их сроков действия
      */
-    public  List<AuthDtoForResponse>  useExchangeMethodForAuthDto() {
-        Set<AuthDtoForRequest> authDtoForRequestSet =
+    public  List<AuthDtoResponse>  useExchangeMethodForAuthDto() {
+        List<AuthDtoRequest> authDtoRequestSet =
                 clientService.getAllClientAndConvertInAuthDtoForRequest();
         RestTemplate restTemplate = new RestTemplate();
-        authDtoForRequestSet.stream().forEach(authDtoRequest -> {
+        authDtoRequestSet.stream().forEach(authDtoRequest -> {
             ResponseEntity<String> responseEntity =
                     restTemplate.postForEntity(url, createHttpEntity(authDtoRequest), String.class);
                     if (responseEntity.hasBody() && (responseEntity.getStatusCodeValue()==200)) {
                         String jsonResponse = responseEntity.getBody();
-                       authDtoForResponseList.add(getAuthDtoForResponseFromJson(jsonResponse));
+
+                       authDtoResponseList.add(getAuthDtoForResponseFromJson(jsonResponse, authDtoRequest));
                     } //залогировать и обработать!
                 }
         );
-        return authDtoForResponseList;
+        return authDtoResponseList;
     }
 
     /**
@@ -73,10 +70,12 @@ public class OfdRuClient {
      * @return полученый объект AuthDtoForResponse  из json
      */
     @Nullable
-    private AuthDtoForResponse getAuthDtoForResponseFromJson(@NonNull String json) {
+    private AuthDtoResponse getAuthDtoForResponseFromJson(@NonNull String json,
+                                                          AuthDtoRequest authDtoRequest) {
         try {
             objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
-            authDtoResponse = objectMapper.readValue(json, AuthDtoForResponse.class);
+            authDtoResponse = objectMapper.readValue(json, AuthDtoResponse.class);
+            authDtoResponse.setLogin(authDtoRequest.getLogin());
             return authDtoResponse;
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -89,14 +88,14 @@ public class OfdRuClient {
      * Создаем и заполняяем объект HttpEntity
      * * @return HttpEntity for pass to postForEntity method
      */
-    private HttpEntity<String> createHttpEntity(AuthDtoForRequest authDtoRequest) {
+    private ResponseEntity<String> createHttpEntity(AuthDtoRequest authDtoRequest) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         String json = getJsonFromAuthDtoRequestObject(authDtoRequest);
-        HttpEntity<String> httpEntityRequest =
-                     new HttpEntity<>(json,headers);
+        ResponseEntity<String> httpResponseEntity =
+                     new ResponseEntity(json,headers,200);
 
-        return httpEntityRequest;
+        return httpResponseEntity;
     }
 
     /**
@@ -104,7 +103,7 @@ public class OfdRuClient {
      * @return Json as String
      */
     @Nullable
-    private String getJsonFromAuthDtoRequestObject(AuthDtoForRequest authDtoRequest) {
+    private String getJsonFromAuthDtoRequestObject(AuthDtoRequest authDtoRequest) {
         try {
             return objectMapper.writeValueAsString(authDtoRequest);
         } catch (JsonProcessingException e) {

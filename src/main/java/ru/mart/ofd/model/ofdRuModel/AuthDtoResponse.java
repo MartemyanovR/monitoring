@@ -1,6 +1,5 @@
 package ru.mart.ofd.model.ofdRuModel;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,14 +8,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonAutoDetect
-public class AuthDtoForRequest {
+public class AuthDtoResponse {
     private String login;
-    private String password;
-
+    private String authToken;
+    private String expirationDateUtc;
 
     @Override
     public String toString() {
-        return String.format("login: %s ; password: %s", login, password);
+        return String.format("login: %s ; authToken: %s ; expirationDateUtc: %s", login, authToken, expirationDateUtc);
     }
 }

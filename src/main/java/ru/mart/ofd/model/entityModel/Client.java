@@ -6,10 +6,11 @@ import lombok.NoArgsConstructor;
 
 
 import javax.persistence.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -25,7 +26,6 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
     @Column(name = "login")
     private String login;
     @Column(name = "passwrd")
@@ -33,7 +33,7 @@ public class Client {
     @Column(name = "auth_token")
     private String authToken;
     @Column(name = "data_utc")
-    private Instant dataUtc;
+    private LocalDateTime dataUtc;
 
 
 
@@ -43,16 +43,8 @@ public class Client {
 
     @Override
     public String toString() {
-        String dataUtcOutput = null;
-        if(dataUtc != null) {
-            DateTimeFormatter formatter =
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .withLocale(Locale.getDefault())
-                            .withZone(ZoneId.systemDefault());
-            dataUtcOutput = formatter.format(dataUtc);
-        }
-        return String.format("Client [id=%d, login=%s, password=%s, authToken=%s, dataUtc=" + dataUtcOutput +"]" ,
-                id, password , login, authToken);
+        return String.format("Client [id=%d, login=%s, password=%s, authToken=%s," +
+                        " dataUtc=" + dataUtc.truncatedTo(ChronoUnit.SECONDS) +"]" , id, password , login, authToken);
     }
 
 }

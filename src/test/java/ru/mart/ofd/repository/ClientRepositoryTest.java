@@ -14,12 +14,16 @@ import ru.mart.ofd.model.entityModel.Client;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -37,9 +41,9 @@ class ClientRepositoryTest {
     void setUp() throws SQLException {
         JdbcTestUtils.deleteFromTables(jdbcTemplate, "Client");
         clientList = Stream.of(
-                new Client(1L,"111@mail.ru","123","f4s6d5f46sd4free6e", Instant.now(), null),
-                new Client(2L,"222@mail.ru","123","f5ds46f54sd6eee4ss", Instant.now(), null),
-                new Client(3L,"333@mail.ru","123","f5d46fe46sd4f6d65e", Instant.now(), null)).
+                new Client(1L,"111@mail.ru","123","f4s6d5f46sd4free6e", LocalDateTime.now(), null),
+                new Client(2L,"222@mail.ru","123","f5ds46f54sd6eee4ss", LocalDateTime.now(), null),
+                new Client(3L,"333@mail.ru","123","f5d46fe46sd4f6d65e", LocalDateTime.now(), null)).
                 collect(Collectors.toList());
 
         clientRepository.saveAll(clientList);
@@ -63,7 +67,7 @@ class ClientRepositoryTest {
 
     @Test
     public void givenClientRepository_whenSaveAndRetreiveClient_thenOK() {
-        Client genericClient_4 = new Client(4L,"444@mail.ru","123","f5d46fe46sd8f6d65e", Instant.now(), null);
+        Client genericClient_4 = new Client(4L,"444@mail.ru","123","f5d46fe46sd8f6d65e", LocalDateTime.now(), null);
         Client expectedClient = clientRepository
                 .save(genericClient_4);
         Client foundClient = clientRepository.findById(expectedClient.getId()).get();
@@ -84,8 +88,24 @@ class ClientRepositoryTest {
             assertEquals(expectedClient.getLogin(), login);
             assertEquals(expectedClient.getPassword(), password);
         }
-
     }
 
+    @Test
+    public void findClientByLoginAndUpdateTheTokenAndDate() {
+        String updateToken = "dddfff444";
+        LocalDateTime updateDate = LocalDateTime.parse("2017-01-24T14:44:21");
+        String login = "111@mail.ru";
+        String wrongLogin = "100@mail.ru";
+        clientRepository.updateClientsDataGetOnTheWebService(updateToken, updateDate, wrongLogin);
+
+        List<Client> clientList = (List<Client>) clientRepository.findAll();
+        System.out.println(clientList);
+
+        assertThat((List<Client>) clientRepository.findAll(), is(not(empty())));
+        assertThat((List<Client>) clientRepository.findAll(), is(hasSize(3)));
+        assertThat(clientRepository.findClientByLogin("111@mail.ru").getAuthToken(), is(equalTo(updateToken)));
+        assertThat(clientRepository.findClientByLogin("111@mail.ru").getDataUtc(), is(equalTo(updateDate)));
+        assertThat(clientRepository.findClientByLogin("111@mail.ru").getLogin(), is(not(equalTo(wrongLogin))));
+    }
 
 }

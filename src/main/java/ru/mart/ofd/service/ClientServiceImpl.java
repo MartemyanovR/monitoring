@@ -1,12 +1,14 @@
 package ru.mart.ofd.service;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.mart.ofd.model.entityModel.Client;
-import ru.mart.ofd.model.ofdRuModel.AuthDtoForRequest;
+import ru.mart.ofd.model.ofdRuModel.AuthDtoRequest;
+import ru.mart.ofd.model.ofdRuModel.AuthDtoResponse;
 import ru.mart.ofd.repository.ClientRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,21 +27,24 @@ public class ClientServiceImpl implements ClientService {
      * @return ArrayList<AuthDtoForRequest>
      */
     @Override
-    public Set<AuthDtoForRequest> getAllClientAndConvertInAuthDtoForRequest() {
-        Set<Client> clientList = (Set<Client>)clientRepo.findAll();
-        Set<AuthDtoForRequest> authDtoForRequestSet = clientList.stream().
-                map(client -> (new AuthDtoForRequest(client.getLogin(),client.getPassword()))).
-                collect(Collectors.collectingAndThen(Collectors.toSet(), ImmutableSet::copyOf));
-        return authDtoForRequestSet;
+    public List<AuthDtoRequest> getAllClientAndConvertInAuthDtoForRequest() {
+        List<Client> clientList = (List<Client>)clientRepo.findAll();
+        List<AuthDtoRequest> authDtoRequestSet = clientList.stream().
+                map(client -> (new AuthDtoRequest(client.getLogin(),client.getPassword()))).
+                collect(Collectors.collectingAndThen(Collectors.toList(), ImmutableList::copyOf));
+        return authDtoRequestSet;
     }
 
     /**
-     *
-     * @param client
-     * @return
+     *Получаеем из метода "useExchangeMethodForAuthDto"
+     *список с обьектами типа AuthDtoResponse, далее проходим
+     * по данному списку и обновляем таблицу Client
      */
     @Override
-    public List<Client> saveUpdateClient(Client client) {
-        return null;
+    public void saveUpdateClient() {
+        List<AuthDtoResponse> authDtoResponseList = client.useExchangeMethodForAuthDto();
+        authDtoResponseList.stream().forEach(auth -> clientRepo.
+                updateClientsDataGetOnTheWebService(auth.getAuthToken(),
+                        LocalDateTime.parse(auth.getExpirationDateUtc()), auth.getLogin()));
     }
 }

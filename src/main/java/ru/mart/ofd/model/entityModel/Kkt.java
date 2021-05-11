@@ -6,6 +6,7 @@ import ru.mart.ofd.model.entityModel.Organization;
 import javax.persistence.*;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,17 +23,17 @@ public class Kkt {
     @Column(name = "serial_number")
     private String serialNumber;
     @Column(name = "activation_date")
-    private LocalDate activation_date;
+    private LocalDateTime activation_date;
     @Column(name = "first_document_date")
-    private Instant firstDocDate;
+    private LocalDateTime firstDocDate;
     @Column(name = "contract_start_date")
-    private Instant contractStartDate;
+    private LocalDateTime contractStartDate;
     @Column(name = "contract_end_date")
-    private Instant contractEndDate;
+    private LocalDateTime contractEndDate;
     @Column(name = "last_doc_on_kkt_date_time")
-    private Instant lastDocOnKktDateTime;
+    private LocalDateTime lastDocOnKktDateTime;
     @Column(name = "last_doc_on_ofd_date_time_utc")
-    private Instant lastDocOnOfdDateTimeUtc;
+    private LocalDateTime lastDocOnOfdDateTimeUtc;
     @Column(name = "fiscal_address")
     private String fiscalAddress;
     @Column(name = "fiscal_place")
